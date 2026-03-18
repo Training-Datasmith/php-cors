@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fruitcake/php-cors and was originally part of asm89/stack-cors
  *
@@ -12,7 +14,6 @@
 
 namespace Fruitcake\Cors;
 
-use Fruitcake\Cors\Exceptions\InvalidOptionException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 

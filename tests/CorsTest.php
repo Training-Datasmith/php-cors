@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fruitcake/php-cors and was originally part of asm89/stack-cors
  *
@@ -39,7 +41,7 @@ class CorsTest extends TestCase
      */
     public function itDoesModifyOnARequestWithSameOrigin(): void
     {
-        $app = $this->createStackedApp(array('allowedOrigins' => array('*')));
+        $app = $this->createStackedApp(['allowedOrigins' => ['*']]);
         $unmodifiedResponse = new Response();
 
         $request  = new Request();
@@ -69,7 +71,7 @@ class CorsTest extends TestCase
      */
     public function itReturnsAllowOriginHeaderOnAllowAllOriginRequest(): void
     {
-        $app      = $this->createStackedApp(array('allowedOrigins' => array('*')));
+        $app      = $this->createStackedApp(['allowedOrigins' => ['*']]);
         $request  = new Request();
         $request->headers->set('Origin', 'http://localhost');
 
@@ -85,7 +87,7 @@ class CorsTest extends TestCase
      */
     public function itReturnsAllowHeadersHeaderOnAllowAllHeadersRequest(): void
     {
-        $app     = $this->createStackedApp(array('allowedHeaders' => array('*')));
+        $app     = $this->createStackedApp(['allowedHeaders' => ['*']]);
         $request = $this->createValidPreflightRequest();
         $request->headers->set('Access-Control-Request-Headers', 'Foo, BAR');
 
@@ -101,7 +103,7 @@ class CorsTest extends TestCase
      */
     public function itReturnsAllowHeadersHeaderOnAllowAllHeadersRequestCredentials(): void
     {
-        $app      = $this->createStackedApp(array('allowedHeaders' => array('*'), 'supportsCredentials' => true));
+        $app      = $this->createStackedApp(['allowedHeaders' => ['*'], 'supportsCredentials' => true]);
         $request = $this->createValidPreflightRequest();
         $request->headers->set('Access-Control-Request-Headers', 'Foo, BAR');
 
@@ -117,7 +119,7 @@ class CorsTest extends TestCase
      */
     public function itSetsAllowCredentialsHeaderWhenFlagIsSetOnValidActualRequest(): void
     {
-        $app     = $this->createStackedApp(array('supportsCredentials' => true));
+        $app     = $this->createStackedApp(['supportsCredentials' => true]);
         $request = $this->createValidActualRequest();
 
         $response = $app->handle($request);
@@ -144,7 +146,7 @@ class CorsTest extends TestCase
      */
     public function itSetsExposedHeadersWhenConfiguredOnActualRequest(): void
     {
-        $app     = $this->createStackedApp(array('exposedHeaders' => array('x-exposed-header', 'x-another-exposed-header')));
+        $app     = $this->createStackedApp(['exposedHeaders' => ['x-exposed-header', 'x-another-exposed-header']]);
         $request = $this->createValidActualRequest();
 
         $response = $app->handle($request);
@@ -158,10 +160,10 @@ class CorsTest extends TestCase
      */
     public function itAddsAVaryHeaderWhenWildcardAndSupportsCredentials(): void
     {
-        $app      = $this->createStackedApp(array(
+        $app      = $this->createStackedApp([
             'allowedOrigins' => ['*'],
             'supportsCredentials' => true,
-        ));
+        ]);
         $request  = $this->createValidActualRequest();
 
         $response = $app->handle($request);
@@ -175,11 +177,11 @@ class CorsTest extends TestCase
      */
     public function itAddsMultipleVaryHeaderWhenWildcardAndSupportsCredentials(): void
     {
-        $app = $this->createStackedApp(array(
+        $app = $this->createStackedApp([
             'allowedOrigins' => ['*'],
             'allowedMethods' => ['*'],
             'supportsCredentials' => true,
-        ));
+        ]);
         $request  = $this->createValidPreflightRequest();
 
         $response = $app->handle($request);
@@ -193,9 +195,9 @@ class CorsTest extends TestCase
      */
     public function itAddsAVaryHeaderWhenHasOriginPatterns(): void
     {
-        $app      = $this->createStackedApp(array(
-            'allowedOriginsPatterns' => array('/l(o|0)calh(o|0)st/')
-        ));
+        $app      = $this->createStackedApp([
+            'allowedOriginsPatterns' => ['/l(o|0)calh(o|0)st/'],
+        ]);
         $request  = $this->createValidActualRequest();
 
         $response = $app->handle($request);
@@ -209,9 +211,9 @@ class CorsTest extends TestCase
      */
     public function itDoesntAddAVaryHeaderWhenWilcardOrigins(): void
     {
-        $app      = $this->createStackedApp(array(
-            'allowedOrigins' => array('*', 'http://localhost')
-        ));
+        $app      = $this->createStackedApp([
+            'allowedOrigins' => ['*', 'http://localhost'],
+        ]);
         $request  = $this->createValidActualRequest();
 
         $response = $app->handle($request);
@@ -224,9 +226,9 @@ class CorsTest extends TestCase
      */
     public function itDoesntAddAVaryHeaderWhenSimpleOrigins(): void
     {
-        $app = $this->createStackedApp(array(
-            'allowedOrigins' => array('http://localhost')
-        ));
+        $app = $this->createStackedApp([
+            'allowedOrigins' => ['http://localhost'],
+        ]);
         $request  = $this->createValidActualRequest();
 
         $response = $app->handle($request);
@@ -240,9 +242,9 @@ class CorsTest extends TestCase
      */
     public function itAddsAVaryHeaderWhenMultipleOrigins(): void
     {
-        $app = $this->createStackedApp(array(
-           'allowedOrigins' => array('http://localhost', 'http://example.com')
-        ));
+        $app = $this->createStackedApp([
+           'allowedOrigins' => ['http://localhost', 'http://example.com'],
+        ]);
         $request  = $this->createValidActualRequest();
 
         $response = $app->handle($request);
@@ -258,13 +260,13 @@ class CorsTest extends TestCase
     public function itAppendsAnExistingVaryHeader(): void
     {
         $app      = $this->createStackedApp(
-            array(
+            [
                 'allowedOrigins' => ['*'],
                 'supportsCredentials' => true,
-            ),
-            array(
-                'Vary' => 'Content-Type'
-            )
+            ],
+            [
+                'Vary' => 'Content-Type',
+            ]
         );
         $request  = $this->createValidActualRequest();
 
@@ -281,16 +283,16 @@ class CorsTest extends TestCase
     public function itAppendsMultipleExistingVaryHeaders(): void
     {
         $app      = $this->createStackedApp(
-            array(
+            [
                 'allowedOrigins' => ['*'],
                 'supportsCredentials' => true,
-            ),
-            array(
+            ],
+            [
                 'Vary' => [
                     'Content-Type',
                     'Referer',
                 ],
-            )
+            ]
         );
         $request  = $this->createValidActualRequest();
 
@@ -320,10 +322,10 @@ class CorsTest extends TestCase
      */
     public function itReturnsAccessControlHeadersOnCorsRequestWithPatternOrigin(): void
     {
-        $app = $this->createStackedApp(array(
-          'allowedOrigins' => array(),
-          'allowedOriginsPatterns' => array('/l(o|0)calh(o|0)st/')
-        ));
+        $app = $this->createStackedApp([
+          'allowedOrigins' => [],
+          'allowedOriginsPatterns' => ['/l(o|0)calh(o|0)st/'],
+        ]);
         $request  = $this->createValidActualRequest();
 
         $response = $app->handle($request);
@@ -368,9 +370,9 @@ class CorsTest extends TestCase
      */
     public function itDoesNotAllowRequestWithOriginNotAllowed(): void
     {
-        $passedOptions = array(
-          'allowedOrigins' => array('http://notlocalhost'),
-        );
+        $passedOptions = [
+          'allowedOrigins' => ['http://notlocalhost'],
+        ];
 
         $service  = new CorsService($passedOptions);
         $request  = $this->createValidActualRequest();
@@ -385,10 +387,10 @@ class CorsTest extends TestCase
      */
     public function itDoesNotModifyRequestWithPatternOriginNotAllowed(): void
     {
-        $passedOptions = array(
-            'allowedOrigins' => array(),
-            'allowedOriginsPatterns' => array('/l\dcalh\dst/')
-        );
+        $passedOptions = [
+            'allowedOrigins' => [],
+            'allowedOriginsPatterns' => ['/l\dcalh\dst/'],
+        ];
 
         $service  = new CorsService($passedOptions);
         $request  = $this->createValidActualRequest();
@@ -403,7 +405,7 @@ class CorsTest extends TestCase
      */
     public function itAllowMethodsOnValidPreflightRequest(): void
     {
-        $app     = $this->createStackedApp(array('allowedMethods' => array('get', 'put')));
+        $app     = $this->createStackedApp(['allowedMethods' => ['get', 'put']]);
         $request = $this->createValidPreflightRequest();
 
         $response = $app->handle($request);
@@ -418,7 +420,7 @@ class CorsTest extends TestCase
      */
     public function itReturnsValidPreflightRequestWithAllowMethodsAll(): void
     {
-        $app     = $this->createStackedApp(array('allowedMethods' => array('*')));
+        $app     = $this->createStackedApp(['allowedMethods' => ['*']]);
         $request = $this->createValidPreflightRequest();
 
         $response = $app->handle($request);
@@ -434,7 +436,7 @@ class CorsTest extends TestCase
      */
     public function itReturnsValidPreflightRequestWithAllowMethodsAllCredentials(): void
     {
-        $app     = $this->createStackedApp(array('allowedMethods' => array('*'), 'supportsCredentials' => true));
+        $app     = $this->createStackedApp(['allowedMethods' => ['*'], 'supportsCredentials' => true]);
         $request = $this->createValidPreflightRequest();
 
         $response = $app->handle($request);
@@ -470,7 +472,7 @@ class CorsTest extends TestCase
      */
     public function itSetsAllowCredentialsHeaderWhenFlagIsSetOnValidPreflightRequest(): void
     {
-        $app     = $this->createStackedApp(array('supportsCredentials' => true));
+        $app     = $this->createStackedApp(['supportsCredentials' => true]);
         $request = $this->createValidPreflightRequest();
 
         $response = $app->handle($request);
@@ -497,7 +499,7 @@ class CorsTest extends TestCase
      */
     public function itSetsMaxAgeWhenSet(): void
     {
-        $app     = $this->createStackedApp(array('maxAge' => 42));
+        $app     = $this->createStackedApp(['maxAge' => 42]);
         $request = $this->createValidPreflightRequest();
 
         $response = $app->handle($request);
@@ -511,7 +513,7 @@ class CorsTest extends TestCase
      */
     public function itSetsMaxAgeWhenZero(): void
     {
-        $app     = $this->createStackedApp(array('maxAge' => 0));
+        $app     = $this->createStackedApp(['maxAge' => 0]);
         $request = $this->createValidPreflightRequest();
 
         $response = $app->handle($request);
@@ -525,7 +527,7 @@ class CorsTest extends TestCase
      */
     public function itDoesntSetMaxAgeWhenFalse(): void
     {
-        $app     = $this->createStackedApp(array('maxAge' => null));
+        $app     = $this->createStackedApp(['maxAge' => null]);
         $request = $this->createValidPreflightRequest();
 
         $response = $app->handle($request);
@@ -584,7 +586,7 @@ class CorsTest extends TestCase
      * @param array<array<string>|string> $responseHeaders
      * @return MockApp
      */
-    private function createStackedApp(array $options = array(), array $responseHeaders = array()): MockApp
+    private function createStackedApp(array $options = [], array $responseHeaders = []): MockApp
     {
         $options['allowedHeaders'] = $options['allowedHeaders'] ?? ['x-allowed-header', 'x-other-allowed-header'];
         $options['allowedMethods'] = $options['allowedMethods'] ?? ['delete', 'get', 'post', 'put'];
