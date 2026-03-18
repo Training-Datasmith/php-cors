@@ -94,8 +94,8 @@ class CorsService
     private function normalizeOptions(): void
     {
         // Normalize case
-        $this->allowedHeaders = array_map('strtolower', $this->allowedHeaders);
-        $this->allowedMethods = array_map('strtoupper', $this->allowedMethods);
+        $this->allowedHeaders = array_map(strtolower(...), $this->allowedHeaders);
+        $this->allowedMethods = array_map(strtoupper(...), $this->allowedMethods);
 
         // Normalize ['*'] to true
         $this->allowAllOrigins = in_array('*', $this->allowedOrigins);
@@ -105,7 +105,7 @@ class CorsService
         // Transform wildcard pattern
         if (!$this->allowAllOrigins) {
             foreach ($this->allowedOrigins as $origin) {
-                if (strpos($origin, '*') !== false) {
+                if (str_contains($origin, '*')) {
                     $this->allowedOriginsPatterns[] = $this->convertWildcardToPattern($origin);
                 }
             }
@@ -116,10 +116,8 @@ class CorsService
      * Create a pattern for a wildcard, based on Str::is() from Laravel
      *
      * @see https://github.com/laravel/framework/blob/5.5/src/Illuminate/Support/Str.php
-     * @param string $pattern
-     * @return string
      */
-    private function convertWildcardToPattern($pattern)
+    private function convertWildcardToPattern(string $pattern): string
     {
         $pattern = preg_quote($pattern, '#');
 
@@ -155,13 +153,13 @@ class CorsService
         $this->configureAllowedOrigin($response, $request);
 
         if ($response->headers->has('Access-Control-Allow-Origin')) {
-            $this->configureAllowCredentials($response, $request);
+            $this->configureAllowCredentials($response);
 
             $this->configureAllowedMethods($response, $request);
 
             $this->configureAllowedHeaders($response, $request);
 
-            $this->configureMaxAge($response, $request);
+            $this->configureMaxAge($response);
         }
 
         return $response;
@@ -193,9 +191,9 @@ class CorsService
         $this->configureAllowedOrigin($response, $request);
 
         if ($response->headers->has('Access-Control-Allow-Origin')) {
-            $this->configureAllowCredentials($response, $request);
+            $this->configureAllowCredentials($response);
 
-            $this->configureExposedHeaders($response, $request);
+            $this->configureExposedHeaders($response);
         }
 
         return $response;
@@ -251,21 +249,21 @@ class CorsService
         $response->headers->set('Access-Control-Allow-Headers', $allowHeaders);
     }
 
-    private function configureAllowCredentials(Response $response, Request $request): void
+    private function configureAllowCredentials(Response $response): void
     {
         if ($this->supportsCredentials) {
             $response->headers->set('Access-Control-Allow-Credentials', 'true');
         }
     }
 
-    private function configureExposedHeaders(Response $response, Request $request): void
+    private function configureExposedHeaders(Response $response): void
     {
         if ($this->exposedHeaders) {
             $response->headers->set('Access-Control-Expose-Headers', implode(', ', $this->exposedHeaders));
         }
     }
 
-    private function configureMaxAge(Response $response, Request $request): void
+    private function configureMaxAge(Response $response): void
     {
         if ($this->maxAge !== null) {
             $response->headers->set('Access-Control-Max-Age', (string) $this->maxAge);
@@ -280,7 +278,7 @@ class CorsService
             $varyHeaders = $response->getVary();
             if (!in_array($header, $varyHeaders, true)) {
                 if (count($response->headers->all('Vary')) === 1) {
-                    $response->setVary(((string)$response->headers->get('Vary')) . ', ' . $header);
+                    $response->setVary(($response->headers->get('Vary')) . ', ' . $header);
                 } else {
                     $response->setVary($header, false);
                 }
