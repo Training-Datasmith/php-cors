@@ -103,6 +103,17 @@ class CorsService
         $this->allowAllHeaders = in_array('*', $this->allowedHeaders);
         $this->allowAllMethods = in_array('*', $this->allowedMethods);
 
+        // Combining wildcard origins with credentials is a security misconfiguration:
+        // it causes the request Origin to be reflected back for any origin, bypassing
+        // the intent of the wildcard restriction while also sending credentials.
+        if ($this->allowAllOrigins && $this->supportsCredentials) {
+            throw new \LogicException(
+                'CORS configuration error: "allowedOrigins: [\'*\']" cannot be combined with "supportsCredentials: true". ' .
+                'Listing wildcard origins with credentials enabled reflects any origin in Access-Control-Allow-Origin, ' .
+                'which grants every domain credential access. Use an explicit allowedOrigins list instead.'
+            );
+        }
+
         // Transform wildcard pattern
         if (!$this->allowAllOrigins) {
             foreach ($this->allowedOrigins as $origin) {
