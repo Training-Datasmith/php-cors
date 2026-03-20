@@ -118,20 +118,45 @@ class Cors_Service
         $pattern = str_replace('\*', '.*', $pattern);
         return '#^' . $pattern . '\z#u';
     }
+    /**
+     * Determine whether the request is a CORS request (i.e., has an Origin header).
+     *
+     * @param Request $request The incoming HTTP request.
+     * @return bool True if the request carries an Origin header.
+     */
     public function is_cors_request(Request $request): bool
     {
         return $request->headers->has('Origin');
     }
+    /**
+     * Determine whether the request is a CORS preflight (OPTIONS) request.
+     *
+     * @param Request $request The incoming HTTP request.
+     * @return bool True if the request is an OPTIONS request with an Access-Control-Request-Method header.
+     */
     public function is_preflight_request(Request $request): bool
     {
         return $request->get_method() === 'OPTIONS' && $request->headers->has('Access-Control-Request-Method');
     }
+    /**
+     * Build a 204 No Content preflight response with CORS headers for the given request.
+     *
+     * @param Request $request The OPTIONS preflight request.
+     * @return Response A 204 response populated with appropriate Access-Control-* headers.
+     */
     public function handle_preflight_request(Request $request): Response
     {
         $response = new Response();
         $response->set_status_code(204);
         return $this->add_preflight_request_headers($response, $request);
     }
+    /**
+     * Add CORS headers to an existing preflight response.
+     *
+     * @param Response $response The response to add headers to.
+     * @param Request  $request  The preflight request providing Origin and requested method/headers.
+     * @return Response The same response with CORS headers added.
+     */
     public function add_preflight_request_headers(Response $response, Request $request): Response
     {
         $this->configure_allowed_origin($response, $request);
@@ -143,6 +168,12 @@ class Cors_Service
         }
         return $response;
     }
+    /**
+     * Check whether the Origin header in the request is in the allowed origins list or matches a wildcard pattern.
+     *
+     * @param Request $request The incoming request whose Origin header will be checked.
+     * @return bool True if the origin is explicitly allowed or matches an allowed pattern.
+     */
     public function is_origin_allowed(Request $request): bool
     {
         if ($this->allow_all_origins === true) {
@@ -159,6 +190,13 @@ class Cors_Service
         }
         return false;
     }
+    /**
+     * Add CORS response headers (Access-Control-Allow-Origin, Expose-Headers, etc.) to a real (non-preflight) response.
+     *
+     * @param Response $response The actual response to annotate with CORS headers.
+     * @param Request  $request  The original CORS request, used to determine the allowed origin.
+     * @return Response The same response with CORS headers added.
+     */
     public function add_actual_request_headers(Response $response, Request $request): Response
     {
         $this->configure_allowed_origin($response, $request);
@@ -229,6 +267,13 @@ class Cors_Service
             $response->headers->set('Access-Control-Max-Age', (string) $this->max_age);
         }
     }
+    /**
+     * Add a field name to the Vary response header if it is not already listed.
+     *
+     * @param Response $response The response to modify.
+     * @param string   $header   The header field name to add to Vary (e.g. 'Origin').
+     * @return Response The same response with the Vary header updated.
+     */
     public function vary_header(Response $response, string $header): Response
     {
         if (!$response->headers->has('Vary')) {
